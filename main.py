@@ -32,30 +32,6 @@ def bits(indexes):
 
     return bits
 
-# Define a new array class for ``int[]``
-LongArrayCls = JArray(JLong)
-
-# Create an array holding 10 elements
-#   equivalent to Java ``int[] x=new int[10]``
-x = LongArrayCls(10)
-
-# Create a length 3 array initialized with [1,2,3]
-#   equivalent to Java ``int[] x = new int[]{1,2,3};``
-#x = LongArrayCls([1,2,3])
-
-# Operate on an array
-print(len(x))
-print(x[0])
-print(x[:-2])#
-x[1:3]=(5,6)
-
-if issubclass(LongArrayCls, JArray):
-     print("class is a java array type.")
-
-#mybits = bits(x)
-mybits = bits([0, 1, 3, 5])
-
-# graph = JPackage('com').tinkerpop.blueprints.impls.tg.TinkerGraph()
 lattice = JPackage('org').nmdp.ngs.fca.ConceptLattice(7)
 
 lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([0]), bits([0, 1, 3, 5])))
@@ -71,16 +47,6 @@ for concept in lattice:
 
 print("lattice size: {}".format(count))
 print("lattice size: {}".format(lattice.size()))
-
-#for i in range(0, mybits.capacity()):
-#    print(mybits.get(i))
-
-# Import default Java packages
-import java.lang
-import java.util
-
-
-# from org.nmdp.ngs.fca import Concept
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
