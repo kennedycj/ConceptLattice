@@ -2,11 +2,8 @@ import jpype
 import jpype.imports
 from jpype import *
 import numpy as np
-
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import graphviz
+import command
 
 # launch the JVM
 # Start JVM with Java types on return
@@ -34,12 +31,12 @@ def bits(indexes):
 
 lattice = JPackage('org').nmdp.ngs.fca.ConceptLattice(7)
 
-lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([0]), bits([0, 1, 3, 5])))
-lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([1]), bits([0, 1, 3, 4])))
-lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([2]), bits([0, 1, 3, 4, 5, 6])));
-lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([3]), bits([0, 2, 4, 5])));
-lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([4]), bits([1, 3])));
-lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([5]), bits([0, 5])));
+lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([0]), bits([0, 1])))
+lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([1]), bits([0, 2])))
+lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([2]), bits([1, 2])));
+#lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([3]), bits([0, 2, 4, 5])));
+#lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([4]), bits([1, 3])));
+#lattice.insert(JPackage('org').nmdp.ngs.fca.Concept(bits([5]), bits([0, 5])));
 
 count = 0
 for concept in lattice:
@@ -47,15 +44,18 @@ for concept in lattice:
 
 print("lattice size: {}".format(count))
 print("lattice size: {}".format(lattice.size()))
+print("lattice: {}".format(lattice.toString()))
+
+f = open('lattice.dot', 'a')
+f.write(str(lattice.toString()))
+f.close()
+
+g = graphviz.Source.from_file('lattice.dot')
+g.view()
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    command.Command()
