@@ -30,7 +30,7 @@ jobs:
         python -m pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Download JAR from Maven repository
-      run: mvn dependency:get -DremoteRepositories=<https://repo.maven.apache.org/maven2/> -DgroupId=<com.tinkerpop.blueprints> -DartifactId=<blueprints-core> -Dversion=<2.6.0> -Dpackaging=jar
+      run: mvn dependency:get -DremoteRepositories=<https://mvnrepository.com/artifact/com.tinkerpop.blueprints/blueprints-core> -DgroupId=<com.tinkerpop.blueprints> -DartifactId=<blueprints-core> -Dversion=<2.6.0> -Dpackaging=jar
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
