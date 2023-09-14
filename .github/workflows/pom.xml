@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>fca</groupId>
+    <artifactId>fca</artifactId>
+    <version>1.0.0</version>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- https://mvnrepository.com/artifact/com.tinkerpop.blueprints/blueprints-core -->
+            <dependency>
+                <groupId>com.tinkerpop.blueprints</groupId>
+                <artifactId>blueprints-core</artifactId>
+                <version>2.6.0</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>[24.1.1,)</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dishevelled</groupId>
+                <artifactId>dsh-bitset</artifactId>
+                <version>3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dishevelled</groupId>
+                <artifactId>dsh-functor</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.nmdp.ngs</groupId>
+                <artifactId>ngs-multimodule</artifactId>
+                <version>1.9-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
+
+
+
