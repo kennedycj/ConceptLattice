@@ -20,12 +20,12 @@ class Optimizer:
         M = 1000
 
 
-        self.interval = {}
+        self.intervals = {}
         self.index = 0
 
         self.model = pulp.LpProblem(f"{self.objective.name}", pulp.LpMinimize)
 
-        # Will eventually come from file of interval: name, start, end
+        # Will eventually come from file of intervals: name, start, end
         # c_name = ['x_1', 'x_2', 'x_3']
         self.L = lower_bound
 
@@ -34,22 +34,11 @@ class Optimizer:
         self.names = {}
 
         # Define the decision variables
-        self.C = [pulp.LpVariable(f"x_{i}", lowBound=self.L, upBound=self.U) for i in range(0, 2 * self.N)]
-        # Define the absolute difference variable
-        self.sum = pulp.LpVariable('sum')
-        self.abs_sum = pulp.LpVariable('abs_sum')
-
-        if self.objective == Objective.MIN_DISTANCE:
-            # Define the objective function to minimize the absolute difference
-            self.model += self.sum == pulp.lpSum([pulp.lpSum([self.C[i] - self.C[j]] for j in range(i, 2 * self.N)) for i in range(0, 2 * self.N)])
-            self.model += self.abs_sum >= self.sum
-            self.model += self.abs_sum >= -self.sum
+        #self.C = [pulp.LpVariable(f"x_{i}", lowBound=self.L, upBound=self.U) for i in range(0, 2 * self.N)]
 
 
-        # By default, constrain intervals to have positive length: start <= end
-        if self.no_reverse:
-            for i in range(0, 2 * self.N, 2):
-                self.model += self.C[i] <= self.C[i + 1]
+        self.C = []
+
 
         #z1 = pulp.LpVariable(f"z_1", cat=pulp.LpBinary)
         #z2 = pulp.LpVariable(f"z_2", cat=pulp.LpBinary)
@@ -66,7 +55,7 @@ class Optimizer:
 
             if pd.notnull(L):
 
-                print(f"{a} overlaps {b} by {self.L}")
+                print(f"{a} overlaps {b} by {L}")
 
                 a_s = self.C[2 * self.names[a]]
                 a_e = self.C[2 * self.names[a] + 1]
@@ -102,23 +91,41 @@ class Optimizer:
                 self.model += b_e - b_s >= L * self.z[i * 4 + 3] - M * (1 - self.z[i * 4 + 3])
 
     def check_interval_exists(self, name):
-        if not name in self.interval:
-            self.interval[name] = self.index
+        if not name in self.intervals:
+            self.intervals[name] = self.index
+            self.C.extend([pulp.LpVariable(f"x_{i}", lowBound=self.L, upBound=self.U) for i in range(2 * self.index, 2 * self.index + 2)])
+            print(f"name = {name} C = {self.C}")
+            self.index += 1
+    def add_interval(self, name, start=None, end=None, length=None):
+        if not name in self.intervals:
+            self.intervals[name] = self.index
+            self.C.extend([pulp.LpVariable(f"x_{i}", lowBound=self.L, upBound=self.U) for i in range(2 * self.index, 2 * self.index + 2)])
+            print(f"name = {name} C = {self.C}")
             self.index += 1
 
-    def add_interval_start_constraint(self, name, start):
-        self.check_interval_exists(name)
-        self.model += self.C[2 * self.interval[name]] == start
+        if pd.notnull(start):
+            self.model += self.C[2 * self.intervals[name]] == start
 
-    def add_interval_end_constraint(self, name, end):
-        self.check_interval_exists(name)
-        self.model += self.C[2 * self.interval[name] + 1] == end
+        if pd.notnull(end):
+            self.model += self.C[2 * self.intervals[name] + 1] == end
 
-    def add_interval_length_constraint(self, name, length):
-        self.check_interval_exists(name)
-        self.model += self.C[2 * self.interval[name] + 1] - self.C[2 * self.interval[name]] == length
+        if pd.notnull(length):
+            self.model += self.C[2 * self.intervals[name] + 1] - self.C[2 * self.intervals[name]] == length
 
     def solve(self):
+        # By default, constrain intervals to have positive length: start <= end
+        if self.no_reverse:
+            for i in range(0, 2 * self.N, 2):
+                self.model += self.C[i] <= self.C[i + 1]
+        # Define the absolute difference variable
+        self.sum = pulp.LpVariable('sum')
+        self.abs_sum = pulp.LpVariable('abs_sum')
+
+        if self.objective == Objective.MIN_DISTANCE:
+            # Define the objective function to minimize the absolute difference
+            self.model += self.sum == pulp.lpSum([pulp.lpSum([self.C[i] - self.C[j]] for j in range(i, 2 * self.N)) for i in range(0, 2 * self.N)])
+            self.model += self.abs_sum >= self.sum
+            self.model += self.abs_sum >= -self.sum
         # Solve the linear programming problem
         self.model.solve()
 
@@ -138,31 +145,18 @@ class Optimizer:
 def optimize_from_file(filename):
     P = pd.read_excel(filename, sheet_name='Position')
     opt = Optimizer(len(P), 0, 10)
-    # Define the interval start, end, and length constraints
+    # Define the intervals start, end, and length constraints
     names = opt.names
     for i, row in P.iterrows():
-        x_s = opt.C[2 * i]
-        x_e = opt.C[2 * i + 1]
-
-        print(f"C[2 * {i} + 1] = {x_s}")
-        print(f"C[2 * {i}] = {x_e}")
-
         name = P.at[i, 'Name']
         names[P.at[i, 'Name']] = i
-        length = P.at[i, 'Length']
         start = P.at[i, 'Start']
         end = P.at[i, 'End']
+        length = P.at[i, 'Length']
 
-        if pd.notnull(length):
-            opt.add_interval_length_constraint(name, length)
+        opt.add_interval(name, start, end, length)
 
-        if pd.notnull(start):
-            opt.add_interval_start_constraint(name, start)
-
-        if pd.notnull(end):
-            opt.add_interval_end_constraint(name, end)
-
-        opt.solve()
+    opt.solve()
 
 if __name__ == '__main__':
     optimize_from_file(".\\Intervals.xlsx")

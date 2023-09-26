@@ -20,7 +20,7 @@ for index, row in parameters.iterrows():
 # Create decision variables x_1 to x_n with the specified bounds
 
 
-# have to map variables to interval names
+# have to map variables to intervals names
 
 positions = pd.DataFrame(columns=['Name', 'Start', 'End'])
 
@@ -42,7 +42,7 @@ for i in range(0, N):
 z = {}
 z_index = 1
 for i, row in positions.iterrows():
-    # The interval length constraints
+    # The intervals length constraints
     model += positions.at[i, 'End'] - positions.at[i, 'Start'] == parameters.at[i, 'Length']
 
     # Add overlap constraints
