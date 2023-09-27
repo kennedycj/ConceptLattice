@@ -7,7 +7,7 @@ parameters = pd.read_excel(".\\Intervals.xlsx", sheet_name='Parameters')
 x = {} # decision variables
 model = pulp.LpProblem("MaxAbsDifference", pulp.LpMinimize)
 
-N = len(parameters.index) # number of intervals
+N = len(parameters.N) # number of intervals
 L = 0 # lower bound
 U = 10 # upper bound
 M = 1000  # A large positive constant
