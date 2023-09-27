@@ -21,7 +21,8 @@ def graph(RM,names,deltaY=1,**kwargs):
         if c1[0] < c1[1]:
             ax.plot(c1,y,**kwargs)
         if c1[0] > c1[1]:
-            ax.plot(c1,y,lw=lw,**kwargs)
+            #ax.plot(c1,y,lw=lw,**kwargs)
+            raise TypeError('interval start > end')
 
         midpoint = c1[0] + (c1[1] - c1[0]) / 2
         print(f"midpoint = {midpoint}")
