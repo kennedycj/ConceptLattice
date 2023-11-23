@@ -2,7 +2,7 @@ import xlwings as xw
 from dateutil.rrule import rrule, YEARLY, MONTHLY
 from datetime import date
 from java import date, interval
-import calendar
+from calendar import Calendar
 from enum import Enum
 class Event:
     def __init__(self, name, start, end):
@@ -16,50 +16,39 @@ class ReferenceType(Enum):
     WEEK = 4
     DAY = 5
 class Reference(Event):
-    def __init__(self, name, start, end, reftype):
+    def __init__(self, name, start, end, id, reftype):
         super().__init__(name, start, end)
+        self.id = id
         self.reftype = reftype
 class Task(Event):
     def __init__(self, name, start, end, id, duration, lead):
-        super().__init__(name, start, end)
-        self.id = id
+        super().__init__(name, start, end, id)
         self.duration = duration
         self.lead = lead
         self.progress = 0
 class Gantt:
-    def __init__(self, lattice, start, end, resolution=ReferenceType.WEEK):
-        self.start = start
-        self.end = end
-        self.resolution = resolution
+    def __init__(self, lattice, project_start, project_end, project_name=''):
         self.lattice = lattice
+        self.cal = Calendar()
+        self.project = Event(project_name, project_start, project_end)
         self.references = {}
         self.tasks = {}
         self.milestones = {}
+        self.current_event = self.lattice.bottom()
 
-        self.lattice.insert(interval(1, self.start, self. end))
 
-    def add_task(self, task):
-        task_interval = self.lattice.insert(interval(1, task.start, task.end))
-        self.tasks[task_interval] = task
+
+    def add_event(self, event):
+        self.current_event = self.lattice.insert(interval(event.start, event.end))
+
+        if type(event) is Task:
+            self.tasks[event] = self.current_event
+
+        return self
+    #def find_event(self, event, project_id=1):
+
     def rollup(self):
-        for interval, event in self.tasks.items():
-            print(f"interval = {interval} event = {vars(event)}")
 
-    def from_file(self, filename):
+        for event, interval in self.tasks.items():
+            print(f"event = {vars(event)} interval = {interval}")
 
-        wb = xw.Book(filename)  # connect to a file that is open or in the current working directory
-
-        ws = wb.sheets['gantt']
-
-        for cell in ws.range('A1:S5'):
-            if(cell.value):
-                print(cell.value)
-            if(cell.formula):
-                print(cell.formula)
-
-            print(f"{cell}.color = {cell.color}")
-
-            if cell.address == '$M$5':
-                cell.color = (100, 56, 2)
-
-        wb.save()
