@@ -15,14 +15,15 @@ jpype.startJVM(classpath=[fca, bitset, functor, guava, tinkerpop, 'classes'], co
 
 from org.nmdp.ngs.fca import IntervalLattice
 
-def index_to_ascii(index):
+def excel_column(index):
     ascii = ''
     while index > 0:
         index -= 1
         ascii = chr(index % 26 + ord('A')) + ascii
         index //= 26
     return ascii
-
+# def indexes_to_excel_range(worksheet, row, column):
+    
 
 if __name__ == '__main__':
     project_start = dt.date(2023, 11, 25)
@@ -119,14 +120,14 @@ if __name__ == '__main__':
     column_width = len(max(task_labels, key=len, default=0))
 
     task_block_start = 'A5'
-    task_block_end = index_to_ascii(len(task_labels)) + '5'
+    task_block_end = excel_column(len(task_labels)) + '5'
     ws.range(f"{task_block_start}:{task_block_end}").column_width = column_width
     ws.range(f"{task_block_start}:{task_block_end}").value = task_labels
 
     # Format calendar block
-    calendar_block_start = index_to_ascii(len(task_labels) + 1) + '1'
-    print(f"index({len(task_labels)} + 1) = {index_to_ascii(len(task_labels))}")
-    calendar_block_end = index_to_ascii(len(dates)) + '1'
+    calendar_block_start = excel_column(len(task_labels) + 1) + '1'
+    print(f"index({len(task_labels)} + 1) = {excel_column(len(task_labels))}")
+    calendar_block_end = excel_column(len(dates)) + '1'
     print(f"{calendar_block_start} {calendar_block_end}")
     ws.range(f"{calendar_block_start}:{calendar_block_end}").column_width = 2
 
@@ -137,8 +138,8 @@ if __name__ == '__main__':
     ws.range('E4').value = date_list
 
     for month in months.values():
-        start_index = index_to_ascii(month.start + 5)
-        end_index = index_to_ascii(month.end + 4)
+        start_index = excel_column(month.start + 5)
+        end_index = excel_column(month.end + 4)
         print(f"start = {start_index} end = {end_index} {month.name}")
         ws.range(f"{start_index}2").value = month.name
         ws[f"{start_index}2"].font.color = (255, 255, 255)
@@ -147,8 +148,8 @@ if __name__ == '__main__':
         ws.range(f"{start_index}2:{end_index}2").merge()
 
     for year in years. values():
-        start_index = index_to_ascii(year.start + 5)
-        end_index = index_to_ascii(year.end + 4)
+        start_index = excel_column(year.start + 5)
+        end_index = excel_column(year.end + 4)
         print(f"start = {start_index} end = {end_index} {year.name}")
         ws.range(f"{start_index}1").value = year.name
         ws[f"{start_index}1"].font.color = (255, 255, 255)
@@ -165,15 +166,15 @@ if __name__ == '__main__':
     print(date_list)
 
     print(f"***")
-    print(index_to_ascii(5))  # Output: "A"
+    print(excel_column(5))  # Output: "A"
     print(f"***")
-    print(index_to_ascii(1))  # Output: "B"
+    print(excel_column(1))  # Output: "B"
     print(f"***")
-    print(index_to_ascii(26))  # Output: "AA"
+    print(excel_column(26))  # Output: "AA"
     print(f"***")
-    print(index_to_ascii(702))  # Output: "ZZ"
+    print(excel_column(702))  # Output: "ZZ"
     print(f"***")
-    print(index_to_ascii(703))  # Output: "AAA"
+    print(excel_column(703))  # Output: "AAA"
     print(f"***")
 
     #f = open('lattice.dot', 'w', encoding='utf-8')

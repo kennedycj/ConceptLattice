@@ -18,5 +18,5 @@ def java_int(x):
 def python_date(jd):
     return date(jd.getYear() + 1900, jd.getMonth() + 1, jd.getDate())
 def interval(start, end):
-    Range = JClass('com.google.common.collect.Range')
+    Range = JClass('com.google.Concept.java.collect.Range')
     return JClass('org.nmdp.ngs.fca.Interval')(1, Range.open(start, end))
