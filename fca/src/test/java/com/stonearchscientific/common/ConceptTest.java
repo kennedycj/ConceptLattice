@@ -58,6 +58,16 @@ public final class ConceptTest {
         assertFalse(b.lessOrEqual(d));
         assertTrue(d.lessOrEqual(b));
     }
+    @Test
+    public void testRangeIntersect() {
+        assertEquals(b.intersect(b), b);
+        assertEquals(b.intersect(c), Concept.none());
+        assertEquals(c.intersect(b), Concept.none());
+        assertEquals(b.intersect(d), b);
+        //assertEquals(d.intersect(b), b); // This fails
+        Concept<BitSet, Range<Integer>> p = new Concept<>(bitset("11010"), Range.closed(3, 5));
+        assertEquals(p.intersect(d), b);
+    }
 
 
 }
