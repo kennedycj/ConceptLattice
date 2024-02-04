@@ -28,6 +28,10 @@ public class Concept<T, U> {
 
     final static Concept NONE = new Concept<>();
 
+    private BitSet bitset(String bitstring) {
+        return BitSet.valueOf(new long[]{Long.parseLong(bitstring, 2)});
+    }
+
     private Concept() {
         this.extent = null;
         this.intent = null;
@@ -66,14 +70,40 @@ public class Concept<T, U> {
             }
             return NONE;
         } else if(this.intent instanceof BitSet && that.intent instanceof BitSet) {
-            return NONE;
+            BitSet thisIntent = (BitSet) this.intent;
+            BitSet thatIntent = (BitSet) that.intent;
+            BitSet meet = (BitSet) thisIntent.clone();
+            meet.and(thatIntent);
+            return new Concept(new BitSet(), meet);
         } else {
             throw new IllegalArgumentException("Both intent and extent must be instances of Range for intersection.");
         }
     }
 
     public Concept<T, U> union(Concept<T, U> that) {
-        return null;
+        if (!(that instanceof Concept)) {
+            throw new IllegalArgumentException("Both intent and extent must be instances of Range for intersection.");
+        }
+        if(that.intent == null) {
+            return this;
+        }
+        if (this.intent instanceof Range && that.intent instanceof Range) {
+            Range thisIntent = (Range) this.intent;
+            Range thatIntent = (Range) that.intent;
+            if(thisIntent.isConnected(thatIntent)) {
+                return new Concept(this.extent, thisIntent.span(thatIntent));
+            }
+            return NONE;
+        } else if(this.intent instanceof BitSet && that.intent instanceof BitSet) {
+            BitSet thisIntent = (BitSet) this.intent;
+            BitSet thisExtent = (BitSet) this.extent;
+            BitSet thatExtent = (BitSet) that.extent;
+            BitSet join = (BitSet) thisExtent.clone();
+            thisExtent.or(thatExtent);
+            return this;
+        } else {
+            throw new IllegalArgumentException("Both intent and extent must be instances of Range for intersection.");
+        }
     }
     /**
      * For concepts (A, B) and (C, D)<br>
@@ -105,9 +135,28 @@ public class Concept<T, U> {
         }
     }
 
-    public Concept<T, U> greaterOrEqual(Concept<T, U> that) {
-        // code
-        return null;
+    public boolean greaterOrEqual(Concept<T, U> that) {
+        if (!(that instanceof Concept)) {
+            throw new IllegalArgumentException("Both intent and extent must be instances of Range for intersection.");
+        }
+        if(that.intent == null) {
+            return false;
+        }
+        if (this.intent instanceof Range && that.intent instanceof Range) {
+            // Range thisIntent = (Range) this.intent;
+            // return thisIntent.encloses((Range) that.intent) ? this : NONE;
+
+            return false;
+        } else if(this.intent instanceof BitSet && that.intent instanceof BitSet) {
+            BitSet thisIntent = (BitSet) this.intent;
+            BitSet thatIntent = (BitSet) that.intent;
+            BitSet meet = (BitSet) thatIntent.clone();
+            meet.and(thisIntent);
+            // System.out.println(thisIntent + " and " + thatIntent + " = " + meet);
+            return meet.cardinality() == thisIntent.cardinality();
+        } else {
+            throw new IllegalArgumentException("Both intent and extent must be instances of Range for intersection.");
+        }
     }
 
     @Override
@@ -119,6 +168,11 @@ public class Concept<T, U> {
             return true;
         }
         Concept concept = (Concept) that;
+        if(this == NONE && that == NONE) {
+            return true;
+        } else if(this == NONE || that == NONE) {
+            return false;
+        }
         return concept.extent.equals(this.extent) && concept.intent.equals(this.intent);
     }
 

@@ -25,6 +25,15 @@ public final class ConceptTest {
         y = new Concept<>(bitset("11101"), bitset("00100"));
         z = new Concept<>(bitset("11000"), bitset("11101"));
 
+        //System.out.println("w = " + w.intent());
+        //System.out.println("x = " + x.intent());
+        //System.out.println("y = " + y.intent());
+
+        BitSet and = (BitSet) x.intent().clone();
+        and.and(w.intent());
+        //System.out.println("x & w = " + and);
+        //System.out.println("|x & w| = " + and.cardinality());
+
         a = new Concept<>(bitset("11111"), null);
         b = new Concept<>(bitset("11010"), Range.closed(3, 4));
         c = new Concept<>(bitset("11101"), Range.closed(1, 2));
@@ -44,19 +53,37 @@ public final class ConceptTest {
     public void testBitSetLessOrEqual() {
         assertTrue(x.lessOrEqual(x));
         assertTrue(x.lessOrEqual(w));
+        assertTrue(z.lessOrEqual(x));
         assertFalse(x.lessOrEqual(y));
         assertFalse(y.lessOrEqual(x));
         assertFalse(x.lessOrEqual(z));
-        assertTrue(z.lessOrEqual(x));
     }
     @Test
     public void testRangeLessOrEqual() {
         assertTrue(b.lessOrEqual(b));
         assertTrue(b.lessOrEqual(a));
+        assertTrue(d.lessOrEqual(b));
         assertFalse(b.lessOrEqual(c));
         assertFalse(c.lessOrEqual(b));
         assertFalse(b.lessOrEqual(d));
-        assertTrue(d.lessOrEqual(b));
+    }
+    @Test
+    public void testBitSetGreaterOrEqual() {
+        assertTrue(x.greaterOrEqual(x));
+        assertTrue(w.greaterOrEqual(x));
+        assertTrue(x.greaterOrEqual(z));
+        assertFalse(x.greaterOrEqual(y));
+        assertFalse(y.greaterOrEqual(x));
+        assertFalse(z.greaterOrEqual(x));
+    }
+    @Test
+    public void testBitSetIntersect() {
+        assertEquals(x.intersect(x).intent(), x.intent());
+        assertEquals(x.intersect(w).intent(), w.intent());
+        assertEquals(z.intersect(x).intent(), x.intent());
+        assertEquals(x.intersect(y).intent(), w.intent());
+        assertEquals(y.intersect(x).intent(), w.intent());
+        assertEquals(x.intersect(z).intent(), x.intent());
     }
     @Test
     public void testRangeIntersect() {
@@ -64,9 +91,21 @@ public final class ConceptTest {
         assertEquals(b.intersect(c), Concept.none());
         assertEquals(c.intersect(b), Concept.none());
         assertEquals(b.intersect(d), b);
-        //assertEquals(d.intersect(b), b); // This fails
+        assertEquals(Concept.none().intersect(Concept.none()), Concept.none());
+        assertEquals(b.intersect(Concept.none()), Concept.none());
+        assertEquals(d.intersect(b).intent(), b.intent()); // This fails without specifying the intent
         Concept<BitSet, Range<Integer>> p = new Concept<>(bitset("11010"), Range.closed(3, 5));
         assertEquals(p.intersect(d), b);
+    }
+    @Test
+    public void testEqual() {
+        assertTrue(x.equals(x));
+        assertTrue(Concept.none().equals(Concept.none()));
+        assertFalse(x.equals(Concept.none()));
+        assertFalse(x.equals(y));
+        assertFalse(x.equals(z));
+        assertFalse(x.equals(null));
+        assertFalse(x.equals(new Object()));
     }
 
 
