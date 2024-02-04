@@ -19,8 +19,8 @@ import com.google.common.collect.Range;
  * - A' is the set of all attributes that are common to all objects in A<br>
  * - B' is the set of all objects that have all attributes in B<br>
  * Davey, BA, &amp; Priestley, HA (2002). Introduction to Lattices and Order (2nd ed.). Cambridge University Press<br>
- * @param <T> the type of the extent<br>
- * @param <U> the type of the intent<br>
+ * @param <T> extent element type<br>
+ * @param <U> intent element type<br>
  */
 public class Concept<T, U> {
     private T extent;
@@ -134,7 +134,15 @@ public class Concept<T, U> {
             throw new IllegalArgumentException("Both intent and extent must be instances of Range for intersection.");
         }
     }
-
+    /**
+     * For concepts (A, B) and (C, D)<br>
+     * - (A, B) &gt;= (C, D) if and only if A is a superset of C<br>
+     * - By implication, B is a subset of D, and the reverse implication is also true<br>
+     * Davey, BA, &amp; Priestley, HA (2002)<br>
+     * @param that the concept to compare to<br>
+     * @return true if this concept is &lt;= the given concept<br>
+     * @see Concept#lessOrEqual(Concept)
+     */
     public boolean greaterOrEqual(Concept<T, U> that) {
         if (!(that instanceof Concept)) {
             throw new IllegalArgumentException("Both intent and extent must be instances of Range for intersection.");
