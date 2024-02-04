@@ -1,2 +1,2 @@
 # fca
-formal concept analysis
+Formal concept analysis
