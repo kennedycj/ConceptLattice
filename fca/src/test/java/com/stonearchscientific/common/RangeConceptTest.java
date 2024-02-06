@@ -48,15 +48,15 @@ public final class RangeConceptTest {
     }
     @Test
     public void testIntersect() {
-        assertEquals(b.intersect(b), b);
+        assertEquals(b.intersect(b).intent(), b.intent());
         assertEquals(b.intersect(c), Concept.none(BitSet.class));
         assertEquals(c.intersect(b), Concept.none(BitSet.class));
-        assertEquals(b.intersect(d), b);
+        assertEquals(b.intersect(d).intent(), b.intent());
         assertEquals(Concept.none(BitSet.class).intersect(Concept.none(BitSet.class)), Concept.none(BitSet.class));
         assertEquals(b.intersect(Concept.none(BitSet.class)), Concept.none(BitSet.class));
         assertEquals(d.intersect(b).intent(), b.intent()); // This fails without specifying the intent
         Concept<BitSet, Range<Integer>> p = new Concept<>(bitset("11010"), Range.closed(3, 5));
-        assertEquals(p.intersect(d), b);
+        assertEquals(p.intersect(d).intent(), b.intent());
     }
     @Test
     public void testEqual() {

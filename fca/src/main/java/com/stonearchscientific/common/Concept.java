@@ -76,7 +76,7 @@ public class Concept<T, U> {
             Range thatIntent = (Range) that.intent;
             if(thisIntent.isConnected(thatIntent)) {
                 // todo: check if this is the correct way to intersect the Concepts with Range as their extent type
-                return new Concept(this.extent, thisIntent.intersection(thatIntent));
+                return new Concept(new BitSet(), thisIntent.intersection(thatIntent));
             }
             return new Concept(new BitSet(), null);
         } else if(this.intent instanceof BitSet && that.intent instanceof BitSet) {
