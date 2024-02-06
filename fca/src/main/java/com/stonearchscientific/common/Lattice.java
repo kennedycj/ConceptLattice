@@ -3,6 +3,9 @@ package com.stonearchscientific.common;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import java.util.HashSet;
+import java.util.Set;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -20,10 +23,10 @@ public class Lattice<T, U> {
     public Lattice(Graph graph, final Concept<T, U> bottom) {
         checkNotNull(graph);
         order = 0;
-        color = 0;
+        //color = 0;
         this.bottom = graph.addVertex(null);
         this.bottom.setProperty(LABEL, bottom);
-        this.bottom.setProperty(COLOR, color);
+        //this.bottom.setProperty(COLOR, color);
         System.out.println("constructor added bottom vertex: " + this.bottom.getProperty(LABEL));
         this.top = this.bottom;
         System.out.println("top: " + this.top.getProperty(LABEL));
@@ -83,8 +86,7 @@ public class Lattice<T, U> {
     }
 
     private boolean filter(final Concept<T, U> left, final Concept<T, U> right) {
-        System.out.println("filter(" + right + ", " + left + ")");
-        System.out.println("  right >= left : " + (right.lessOrEqual(left) ? "true" : "false"));
+        System.out.println(right + " >=  " + left + " : " + (right.greaterOrEqual(left) ? "true" : "false"));
         return right.greaterOrEqual(left);
     }
     /*
@@ -131,8 +133,9 @@ public class Lattice<T, U> {
 
     public Vertex insert(final Graph graph, final Concept<T, U> concept) {
         Vertex added = addIntent(graph, concept, bottom);
+        Set<Vertex> visited = new HashSet<>();
+        visited.add(added);
         List<Vertex> queue = new ArrayList<>();
-        added.setProperty("color", ++color);
         queue.add(added);
 
         while (!queue.isEmpty()) {
@@ -140,15 +143,11 @@ public class Lattice<T, U> {
             Concept<T, U> visitingConcept = visiting.getProperty(LABEL);
             visitingConcept.union(concept);
 
-            //visitingConcept.extent().or(concept.extent());
-
             for (Edge edge : visiting.getEdges(Direction.BOTH)) {
                 Vertex target = edge.getVertex(Direction.OUT);
-                if ((int) target.getProperty("color") != color) {
-                    if (filter(visiting, target)) {
-                        target.setProperty("color", color);
-                        queue.add(target);
-                    }
+                if (!visited.contains(target) && filter(visiting, target)) {
+                    visited.add(target);
+                    queue.add(target);
                 }
             }
         }
@@ -157,30 +156,32 @@ public class Lattice<T, U> {
 
     private Vertex addVertex(final Graph graph, final Concept<T, U> label) {
         Vertex child = graph.addVertex(null);
-        System.out.println("insert(" + label + ")");
+        System.out.println("addVertex(" + label + ")");
         child.setProperty("label", label);
-        child.setProperty("color", color);
+        //child.setProperty("color", color);
         ++size;
         return child;
     }
 
     private Edge addUndirectedEdge(final Graph graph, final Vertex source, final Vertex target, final String weight) {
         graph.addEdge(null, source, target, weight);
+        System.out.println("addUndirectedEdge(" + source.getProperty(LABEL) + ", " + target.getProperty(LABEL) + ")");
         Edge edge = graph.addEdge(null, target, source, weight);
         ++order;
         return edge;
     }
 
     private void removeUndirectedEdge(final Graph graph, final Vertex source, final Vertex target) {
+        System.out.println("removeUndirectedEdge(" + source.getProperty(LABEL) + ", " + target.getProperty(LABEL) + ")");
         for (Edge edge : source.getEdges(Direction.BOTH)) {
             if (edge.getVertex(Direction.OUT).equals(target)) {
                 graph.removeEdge(edge);
-                break;
+                //break;
             }
 
             if (edge.getVertex(Direction.IN).equals(target)) {
                 graph.removeEdge(edge);
-                break;
+                //break;
             }
         }
         --order;
@@ -205,6 +206,7 @@ public class Lattice<T, U> {
             if (!filter(target, proposed) && !filter(proposed, target)) {
                 Concept<T, U> targetElement = target.getProperty(LABEL);
                 Concept<T, U> intersect = (Concept<T, U>) targetElement.intersect(proposed);
+                System.out.println(targetElement + " intersect " + proposed + " = " + intersect);
                 candidate = addIntent(graph, intersect, candidate);
             }
 
